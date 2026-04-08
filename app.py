@@ -41,7 +41,7 @@ if not api_key:
 
 # Inicializa os componentes da IA uma única vez
 try:
-    llm = ChatGroq(model="llama3-8b-8192", groq_api_key=api_key)
+    llm = ChatGroq(model="llama-3.3-70b-versatile", groq_api_key=api_key)
     prompt = ChatPromptTemplate.from_template(instrucoes)
     chain = prompt | llm | JsonOutputParser()
 except Exception as e:
