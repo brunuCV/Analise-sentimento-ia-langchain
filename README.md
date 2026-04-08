@@ -29,24 +29,24 @@ Projeto de análise de Customer Experience (CX) que utiliza Inteligência Artifi
    git clone [https://github.com/brunuCV/Analise-sentimento-ia-langchain.git](https://github.com/brunuCV/Analise-sentimento-ia-langchain.git)
    cd Analise-sentimento-ia-langchain
    
-2. **Instale as dependências:
+2. **Instale as dependências:**
 
 Bash
 pip install -r requirements.txt
 
-3. **Configure sua API Key:
+3. **Configure sua API Key:**
 Crie um arquivo .env na raiz do projeto e adicione sua chave da Groq:
 
 Snippet de código
 GROQ_API_KEY=gsk_sua_chave_aqui
 
 
-4. **Inicie o App:
+4. **Inicie o App:**
 
 Bash
 streamlit run app.py
 
-🔑 **Configuração no Streamlit Cloud
+🔑 **Configuração no Streamlit Cloud**
 Para rodar este projeto na nuvem, adicione sua chave nas configurações do Streamlit Cloud em Settings > Secrets:
 
 Ini, TOML
