@@ -23,31 +23,43 @@ Analise o seguinte feedback de cliente e retorne APENAS um JSON com os campos:
 Feedback: {feedback}
 """
 
-# --- 3. GERENCIAMENTO DE API KEY ---
-# Tenta carregar do .env (local) ou dos Secrets (Streamlit Cloud)
+# --- 3. GERENCIAMENTO DE API KEY (VERSÃO DEFINITIVA) ---
 load_dotenv()
 
-# Ordem de prioridade: 1. Secrets do Streamlit | 2. Variável de ambiente/ .env
-api_key = None
+# Função para buscar a chave sem criar conflito de interface
+def get_api_key():
+    # 1. Tenta buscar nos Secrets do Streamlit (Nuvem)
+    try:
+        if "GROQ_API_KEY" in st.secrets and st.secrets["GROQ_API_KEY"]:
+            return st.secrets["GROQ_API_KEY"]
+    except:
+        pass
+    
+    # 2. Tenta buscar no .env ou Variáveis de Ambiente (Local)
+    env_key = os.getenv("GROQ_API_KEY")
+    if env_key:
+        return env_key
+    
+    # 3. Se não achou em nada, aí sim pede no Sidebar
+    st.sidebar.title("🔑 Configuração")
+    user_key = st.sidebar.text_input("Groq API Key não detectada. Insira manualmente:", type="password")
+    if user_key:
+        return user_key
+    
+    return None
 
-try:
-    if "GROQ_API_KEY" in st.secrets:
-        api_key = st.secrets["GROQ_API_KEY"]
-except:
-    pass
+api_key = get_api_key()
 
 if not api_key:
-    api_key = os.getenv("GROQ_API_KEY")
+    st.info("👋 Bem-vindo! Por favor, configure sua API Key da Groq para começar.")
+    st.markdown("""
+    **Como configurar:**
+    1. Crie um arquivo `.env` localmente com `GROQ_API_KEY=sua_chave`.
+    2. Ou insira a chave na barra lateral esquerda.
+    """)
+    st.stop()
 
-# Só mostra o campo manual se não achou nos passos acima
-if not api_key:
-    st.sidebar.title("Configurações")
-    api_key = st.sidebar.text_input("Insira sua Groq API Key manualmente:", type="password")
-    if not api_key:
-        st.info("👋 Por favor, insira sua API Key para começar.")
-        st.stop()
-        
-# Inicializa os componentes da IA uma única vez
+# Inicializa os componentes da IA
 try:
     llm = ChatGroq(model="llama-3.3-70b-versatile", groq_api_key=api_key)
     prompt = ChatPromptTemplate.from_template(instrucoes)
