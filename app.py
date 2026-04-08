@@ -7,6 +7,25 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
+# Carrega localmente
+load_dotenv()
+
+# Função ultra-simples para garantir a leitura
+def buscar_chave():
+    # Tenta primeiro os Secrets do Streamlit (Nuvem)
+    if "GROQ_API_KEY" in st.secrets:
+        return st.secrets["GROQ_API_KEY"]
+    # Tenta o arquivo .env (Local)
+    return os.getenv("GROQ_API_KEY")
+
+api_key = buscar_chave()
+
+if not api_key:
+    st.sidebar.warning("Chave de API não detectada.")
+    api_key = st.sidebar.text_input("Insira sua Groq API Key:", type="password")
+    if not api_key:
+        st.stop()
+
 # --- 1. CONFIGURAÇÕES INICIAIS ---
 load_dotenv()
 st.set_page_config(page_title="IA Analisadora de Feedback", layout="wide")
