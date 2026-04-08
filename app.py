@@ -23,22 +23,30 @@ Analise o seguinte feedback de cliente e retorne APENAS um JSON com os campos:
 Feedback: {feedback}
 """
 
-# --- 3. GERENCIAMENTO DE API KEY (Lógica Robusta) ---
+# --- 3. GERENCIAMENTO DE API KEY ---
+# Tenta carregar do .env (local) ou dos Secrets (Streamlit Cloud)
+load_dotenv()
+
+# Ordem de prioridade: 1. Secrets do Streamlit | 2. Variável de ambiente/ .env
 api_key = None
+
 try:
-    # Tenta pegar dos Secrets do Streamlit ou do arquivo .env
-    api_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+    if "GROQ_API_KEY" in st.secrets:
+        api_key = st.secrets["GROQ_API_KEY"]
 except:
+    pass
+
+if not api_key:
     api_key = os.getenv("GROQ_API_KEY")
 
-# Se não achou em nenhum lugar, pede no Sidebar
+# Só mostra o campo manual se não achou nos passos acima
 if not api_key:
     st.sidebar.title("Configurações")
     api_key = st.sidebar.text_input("Insira sua Groq API Key manualmente:", type="password")
     if not api_key:
-        st.info("👋 Bem-vindo! Por favor, insira sua API Key na barra lateral para começar.")
+        st.info("👋 Por favor, insira sua API Key para começar.")
         st.stop()
-
+        
 # Inicializa os componentes da IA uma única vez
 try:
     llm = ChatGroq(model="llama-3.3-70b-versatile", groq_api_key=api_key)
