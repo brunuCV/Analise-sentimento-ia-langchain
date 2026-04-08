@@ -13,20 +13,31 @@ load_dotenv()
 
 # 2. FUNÇÃO DE BUSCA DA CHAVE
 def buscar_chave():
-    # Tenta primeiro os Secrets do Streamlit (Nuvem)
+    key = None
+    # 1. Tenta Secrets do Streamlit
     if "GROQ_API_KEY" in st.secrets:
-        return st.secrets["GROQ_API_KEY"]
-    # Tenta o arquivo .env (Local)
-    return os.getenv("GROQ_API_KEY")
+        key = st.secrets["GROQ_API_KEY"]
+    # 2. Tenta .env
+    if not key:
+        key = os.getenv("GROQ_API_KEY")
+    
+    # Remove espaços em branco, quebras de linha ou aspas extras
+    if key:
+        return key.strip().replace('"', '').replace("'", "")
+    return None
 
 api_key = buscar_chave()
 
-# 3. VALIDAÇÃO
-if not api_key:
-    st.sidebar.warning("Chave de API não detectada.")
+# --- DEBUG NA BARRA LATERAL (APENAS PARA VOCÊ VERIFICAR) ---
+if api_key:
+    # Mostra apenas os 4 primeiros e 4 últimos caracteres para segurança
+    st.sidebar.success(f"Chave detectada: {api_key[:4]}...{api_key[-4:]}")
+else:
+    st.sidebar.error("Nenhuma chave detectada automaticamente.")
     api_key = st.sidebar.text_input("Insira sua Groq API Key:", type="password")
-    if not api_key:
-        st.info("Aguardando chave para iniciar...")
+    if api_key:
+        api_key = api_key.strip() # Limpa a chave digitada manualmente também
+    else:
         st.stop()
 
 # --- 2. TEMPLATE DE IA ---
